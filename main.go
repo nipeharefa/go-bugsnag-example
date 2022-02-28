@@ -18,10 +18,24 @@ func main() {
 	g.Use(bugsnaggin.AutoNotify(bugsnag.Configuration{
 		// Your Bugsnag project API key, required unless set as environment
 		// variable $BUGSNAG_API_KEY
-		APIKey: "1e192ac97f541f2e0079715d27f8ac3d",
+		APIKey: "",
 		// The import paths for the Go packages containing your source files
 		ProjectPackages: []string{"main", "github.com/org/myapp"},
 	}))
+
+	g.GET("/meta", func(c *gin.Context) {
+		user := bugsnag.User{Id: "1234", Name: "Conrad", Email: "me@example.com"}
+		class := bugsnag.ErrorClass{
+			Name: "MetaData",
+		}
+		meta := bugsnag.MetaData{
+			"Client": map[string]interface{}{
+				"IP": c.ClientIP(),
+			},
+		}
+		bugsnag.Notify(ErrUserNotFound, c.Request.Context(), user, class, meta)
+		c.String(200, "Hello World")
+	})
 
 	g.GET("/", func(c *gin.Context) {
 		user := bugsnag.User{Id: "1234", Name: "Conrad", Email: "me@example.com"}
